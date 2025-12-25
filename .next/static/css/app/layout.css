@@ -605,6 +605,9 @@ video {
 .h-\[450px\] {
   height: 450px;
 }
+.min-h-screen {
+  min-height: 100vh;
+}
 .w-8 {
   width: 2rem;
 }
