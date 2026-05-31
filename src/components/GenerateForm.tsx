@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
+import { generateJob } from "@/app/actions/generateJob";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -16,13 +17,9 @@ function SubmitButton() {
   );
 }
 
-interface GenerateFormProps {
-  action: (formData: FormData) => Promise<void>;
-}
-
-export default function GenerateForm({ action }: GenerateFormProps) {
+export default function GenerateForm() {
   return (
-    <form action={action} className="space-y-4 max-w-2xl mx-auto">
+    <form action={generateJob} className="space-y-4 max-w-2xl mx-auto">
       <div className="flex flex-col gap-2">
         <label htmlFor="title" className="font-medium">
           Role Title
