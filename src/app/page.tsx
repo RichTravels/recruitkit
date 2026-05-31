@@ -39,8 +39,10 @@ export default async function Home() {
 
     const jd = (chat.choices[0].message.content || "") + EEOC_FOOTER;
 
+    if (!u) return { error: "user" };
+
     await db.job.create({
-      data: { userId: activeId as string, title: fd.title, content: jd, tone: fd.tone }
+      data: { userId: u.id, title: fd.title, content: jd, tone: fd.tone },
     });
 
     if (u?.subscriptionStatus !== "active") {

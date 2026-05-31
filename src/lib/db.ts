@@ -7,7 +7,7 @@ const globalForPrisma = globalThis as unknown as {
 // This creates the database connection
 export const db = globalForPrisma.prisma ?? new PrismaClient();
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
+globalForPrisma.prisma = db;
 
 export async function ensureUser(clerkId: string, email: string) {
   // If this line has a red error, npx prisma generate will fix it
