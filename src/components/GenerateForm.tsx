@@ -1,31 +1,28 @@
 "use client";
 
-import React, { useState } from "react";
+import { useFormStatus } from "react-dom";
 
-interface GenerateFormProps {
-  onGenerate: (formData: FormData) => Promise<string | { error: string }>;
-}
-
-export default function GenerateForm({ onGenerate }: GenerateFormProps) {
-  const [loading, setLoading] = useState(false);
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setLoading(true);
-
-    const formData = new FormData(event.currentTarget);
-
-    try {
-      await onGenerate(formData);
-    } catch (error) {
-      console.error("Generation failed:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
+function SubmitButton() {
+  const { pending } = useFormStatus();
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl mx-auto">
+    <button
+      type="submit"
+      disabled={pending}
+      className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+    >
+      {pending ? "Generating..." : "Generate Job Description"}
+    </button>
+  );
+}
+
+interface GenerateFormProps {
+  action: (formData: FormData) => Promise<void>;
+}
+
+export default function GenerateForm({ action }: GenerateFormProps) {
+  return (
+    <form action={action} className="space-y-4 max-w-2xl mx-auto">
       <div className="flex flex-col gap-2">
         <label htmlFor="title" className="font-medium">
           Role Title
@@ -113,13 +110,7 @@ export default function GenerateForm({ onGenerate }: GenerateFormProps) {
         </select>
       </div>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
-      >
-        {loading ? "Generating..." : "Generate Job Description"}
-      </button>
+      <SubmitButton />
     </form>
   );
 }
