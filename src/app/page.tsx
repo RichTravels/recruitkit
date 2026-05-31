@@ -5,6 +5,14 @@ import { db, ensureUser } from "@/lib/db";
 import { openai, STAGE_1_5_PROMPT } from "@/lib/openai";
 import { EEOC_FOOTER } from "@/lib/utils";
 
+function parseList(value: FormDataEntryValue | null): string[] {
+  if (!value || typeof value !== "string") return [];
+  return value
+    .split(/[,\n]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 export default async function Home() {
   // Fix: await the auth() call
   const { userId } = await auth();
@@ -25,16 +33,29 @@ export default async function Home() {
   const user = await client.users.getUser(userId);
   await ensureUser(userId, user.emailAddresses[0].emailAddress);
 
-  async function generate(fd: any) {
+  async function generate(formData: FormData) {
     "use server";
     const { userId: activeId } = await auth();
     const u = await db.user.findUnique({ where: { clerkId: activeId as string } });
-    
+
     if (u?.subscriptionStatus !== "active" && (u?.jdQuota ?? 0) <= 0) return { error: "quota" };
+
+    const title = String(formData.get("title") ?? "").trim();
+    const tone = String(formData.get("tone") ?? "").trim();
+    const location = String(formData.get("location") ?? "").trim();
+    const employment = String(formData.get("employment") ?? "Full-time").trim();
+    const must = parseList(formData.get("must"));
+    const nice = parseList(formData.get("nice"));
+
+    if (!title) return { error: "title" };
+    if (!tone) return { error: "tone" };
 
     const chat = await openai.chat.completions.create({
       model: "gpt-4o",
-      messages: [{ role: "user", content: STAGE_1_5_PROMPT(fd.title, fd.location, fd.employment, fd.must, fd.nice, fd.tone) }],
+      messages: [{
+        role: "user",
+        content: STAGE_1_5_PROMPT(title, location, employment, must, nice, tone),
+      }],
     });
 
     const jd = (chat.choices[0].message.content || "") + EEOC_FOOTER;
@@ -42,7 +63,7 @@ export default async function Home() {
     if (!u) return { error: "user" };
 
     await db.job.create({
-      data: { userId: u.id, title: fd.title, content: jd, tone: fd.tone },
+      data: { userId: u.id, title, content: jd, tone },
     });
 
     if (u?.subscriptionStatus !== "active") {
