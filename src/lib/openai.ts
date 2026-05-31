@@ -5,13 +5,17 @@ export const openai = new OpenAI({
 });
 
 export const STAGE_1_5_PROMPT = (
-  title: string, 
-  loc: string, 
-  type: string, 
-  must: string[], 
-  nice: string[], 
+  title: string,
+  loc: string,
+  type: string,
+  must: string[] | undefined,
+  nice: string[] | undefined,
   tone: string
-) => `
+) => {
+  must = must ?? [];
+  nice = nice ?? [];
+
+  return `
 Write a professional, inclusive, and high-performance Job Description for the following role:
 Role: ${title}
 Location: ${loc}
@@ -28,3 +32,4 @@ Structure the response with these sections:
 
 Use gender-neutral, bias-aware language throughout. Format in clean Markdown.
 `;
+};
