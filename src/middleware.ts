@@ -4,6 +4,8 @@ const isPublicRoute = createRouteMatcher([
   '/',
   '/outreach/generate',
   '/outreach/library',
+  '/interview/generate',
+  '/interview/library',
   '/sign-in(.*)',
   '/sign-up(.*)',
 ]);

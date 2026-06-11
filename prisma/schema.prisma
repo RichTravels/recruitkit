@@ -16,8 +16,10 @@ model User {
   subscriptionStatus String @default("inactive")
   jdQuota          Int      @default(3)
   outreachQuota    Int      @default(3)
+  interviewQuota   Int      @default(3)
   jobs             Job[]
   outreachMessages OutreachMessage[]
+  interviewQuestions InterviewQuestion[]
 }
 
 model Job {
@@ -44,6 +46,20 @@ model OutreachMessage {
   coldEmailSubject String
   coldEmailBody    String
   createdAt        DateTime @default(now())
+
+  @@index([userId])
+}
+
+model InterviewQuestion {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  roleTitle     String
+  seniority     String
+  questionCount Int
+  categories    String
+  questions     String
+  createdAt     DateTime @default(now())
 
   @@index([userId])
 }

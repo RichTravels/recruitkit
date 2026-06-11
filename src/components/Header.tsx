@@ -23,6 +23,12 @@ export default function Header() {
             <Link href="/outreach/library" className="transition hover:text-slate-900">
               Outreach Library
             </Link>
+            <Link href="/interview/generate" className="transition hover:text-slate-900">
+              Interview Generator
+            </Link>
+            <Link href="/interview/library" className="transition hover:text-slate-900">
+              Interview Library
+            </Link>
           </nav>
         </SignedIn>
       </div>
