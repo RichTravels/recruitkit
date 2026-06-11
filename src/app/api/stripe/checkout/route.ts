@@ -37,10 +37,13 @@ export async function POST() {
     }
 
     const baseUrl = getEnv("NEXT_PUBLIC_URL") ?? "http://localhost:3000";
+    const priceId = getRequiredEnv("STRIPE_PRICE_ID");
+    console.log("[stripe/checkout] using price:", priceId);
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
-      line_items: [{ price: getRequiredEnv("STRIPE_PRICE_ID"), quantity: 1 }],
+      line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${baseUrl}/dashboard?upgraded=true`,
       cancel_url: `${baseUrl}/dashboard`,
       client_reference_id: user.id,
@@ -56,6 +59,7 @@ export async function POST() {
 
     return NextResponse.json({ url: session.url });
   } catch (error) {
+    console.error("[stripe/checkout] error:", error);
     const message = error instanceof Error ? error.message : "Checkout failed";
     return NextResponse.json({ error: message }, { status: 500 });
   }
