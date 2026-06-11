@@ -60,7 +60,10 @@ export async function generateInterview(
     const u = await db.user.findUnique({ where: { clerkId: activeId } });
     if (!u) return { error: "User not found" };
     if (u.subscriptionStatus !== "active" && u.interviewQuota <= 0) {
-      return { error: "Quota exceeded" };
+      return {
+        error:
+          "You've used all 3 free interview question generations. Upgrade to continue.",
+      };
     }
 
     const roleTitle = getStringField(formData, "roleTitle");
@@ -84,7 +87,9 @@ export async function generateInterview(
     );
 
     const questions = chat.choices[0].message.content || "";
-    if (!questions) throw new Error("No content returned from OpenAI");
+    if (!questions) {
+      return { error: "No content returned from OpenAI. Please try again." };
+    }
 
     const categoriesStr = categories.join(",");
 

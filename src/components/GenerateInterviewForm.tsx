@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { generateInterview } from "@/app/actions/generateInterview";
 import type { GenerateInterviewState } from "@/app/actions/generateInterview.types";
@@ -32,10 +33,23 @@ function SubmitButton() {
 
 export default function GenerateInterviewForm() {
   const [state, formAction] = useFormState(generateInterview, initialState);
+  const [displayState, setDisplayState] = useState<GenerateInterviewState>(initialState);
+  const prevStateRef = useRef<GenerateInterviewState>(initialState);
+
+  useEffect(() => {
+    if (state !== prevStateRef.current) {
+      prevStateRef.current = state;
+      setDisplayState(state);
+    }
+  }, [state]);
 
   return (
     <div className="space-y-8">
-      <form action={formAction} className="mx-auto max-w-2xl space-y-4">
+      <form
+        action={formAction}
+        onSubmit={() => setDisplayState(initialState)}
+        className="mx-auto max-w-2xl space-y-4"
+      >
         <div className="flex flex-col gap-2">
           <label htmlFor="roleTitle" className="font-medium">
             Role Title
@@ -114,13 +128,13 @@ export default function GenerateInterviewForm() {
         <SubmitButton />
       </form>
 
-      {state.error ? (
+      {displayState.error ? (
         <p className="mx-auto max-w-2xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {state.error}
+          {displayState.error}
         </p>
       ) : null}
 
-      {state.questions && state.roleTitle ? (
+      {displayState.questions && displayState.roleTitle ? (
         <section className="mx-auto max-w-3xl space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-slate-800">Generated Questions</h2>
@@ -134,13 +148,13 @@ export default function GenerateInterviewForm() {
 
           <article className="rounded-xl border bg-white p-6 shadow-sm">
             <header className="mb-4 border-b pb-4">
-              <h3 className="text-xl font-bold text-slate-900">{state.roleTitle}</h3>
+              <h3 className="text-xl font-bold text-slate-900">{displayState.roleTitle}</h3>
               <div className="mt-1 flex flex-wrap gap-3 text-xs text-slate-500">
-                <span className="capitalize">Seniority: {state.seniority}</span>
-                <span>{state.questionCount} questions</span>
-                {state.categories ? (
+                <span className="capitalize">Seniority: {displayState.seniority}</span>
+                <span>{displayState.questionCount} questions</span>
+                {displayState.categories ? (
                   <span>
-                    {state.categories
+                    {displayState.categories
                       .split(",")
                       .map((c) => c.trim())
                       .join(" · ")}
@@ -151,14 +165,14 @@ export default function GenerateInterviewForm() {
 
             <div className="mb-4 flex justify-end">
               <CopyButton
-                text={state.questions}
+                text={displayState.questions}
                 copyKey="interview-questions"
                 label="Copy All Questions"
               />
             </div>
 
             <div className="whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
-              {state.questions}
+              {displayState.questions}
             </div>
           </article>
         </section>

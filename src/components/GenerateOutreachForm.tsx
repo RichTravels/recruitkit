@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { generateOutreach } from "@/app/actions/generateOutreach";
 import type { GenerateOutreachState } from "@/app/actions/generateOutreach.types";
@@ -24,10 +25,23 @@ function SubmitButton() {
 
 export default function GenerateOutreachForm() {
   const [state, formAction] = useFormState(generateOutreach, initialState);
+  const [displayState, setDisplayState] = useState<GenerateOutreachState>(initialState);
+  const prevStateRef = useRef<GenerateOutreachState>(initialState);
+
+  useEffect(() => {
+    if (state !== prevStateRef.current) {
+      prevStateRef.current = state;
+      setDisplayState(state);
+    }
+  }, [state]);
 
   return (
     <div className="space-y-8">
-      <form action={formAction} className="mx-auto max-w-2xl space-y-4">
+      <form
+        action={formAction}
+        onSubmit={() => setDisplayState(initialState)}
+        className="mx-auto max-w-2xl space-y-4"
+      >
         <div className="flex flex-col gap-2">
           <label htmlFor="roleTitle" className="font-medium">
             Role Title
@@ -106,13 +120,13 @@ export default function GenerateOutreachForm() {
         <SubmitButton />
       </form>
 
-      {state.error ? (
+      {displayState.error ? (
         <p className="mx-auto max-w-2xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {state.error}
+          {displayState.error}
         </p>
       ) : null}
 
-      {state.linkedinDm && state.coldEmailSubject && state.coldEmailBody ? (
+      {displayState.linkedinDm && displayState.coldEmailSubject && displayState.coldEmailBody ? (
         <section className="mx-auto max-w-3xl space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-slate-800">Generated Outreach</h2>
@@ -127,35 +141,35 @@ export default function GenerateOutreachForm() {
           <article className="rounded-xl border bg-white p-6 shadow-sm">
             <header className="mb-4 border-b pb-4">
               <h3 className="text-xl font-bold text-slate-900">
-                {state.roleTitle} at {state.companyName}
+                {displayState.roleTitle} at {displayState.companyName}
               </h3>
-              <p className="mt-1 text-xs capitalize text-slate-500">Tone: {state.tone}</p>
+              <p className="mt-1 text-xs capitalize text-slate-500">Tone: {displayState.tone}</p>
             </header>
 
             <div className="space-y-6">
               <div>
                 <div className="mb-2 flex items-center justify-between">
                   <h4 className="text-sm font-semibold text-slate-800">LinkedIn DM</h4>
-                  <CopyButton text={state.linkedinDm} copyKey="linkedin" label="Copy DM" />
+                  <CopyButton text={displayState.linkedinDm} copyKey="linkedin" label="Copy DM" />
                 </div>
                 <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
-                  {state.linkedinDm}
+                  {displayState.linkedinDm}
                 </p>
-                <p className="mt-1 text-xs text-slate-400">{state.linkedinDm.length}/300 chars</p>
+                <p className="mt-1 text-xs text-slate-400">{displayState.linkedinDm.length}/300 chars</p>
               </div>
 
               <div>
                 <div className="mb-2 flex items-center justify-between">
                   <h4 className="text-sm font-semibold text-slate-800">Cold Email</h4>
                   <CopyButton
-                    text={`Subject: ${state.coldEmailSubject}\n\n${state.coldEmailBody}`}
+                    text={`Subject: ${displayState.coldEmailSubject}\n\n${displayState.coldEmailBody}`}
                     copyKey="email"
                     label="Copy Email"
                   />
                 </div>
-                <p className="text-sm font-medium text-slate-800">{state.coldEmailSubject}</p>
+                <p className="text-sm font-medium text-slate-800">{displayState.coldEmailSubject}</p>
                 <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
-                  {state.coldEmailBody}
+                  {displayState.coldEmailBody}
                 </p>
               </div>
             </div>

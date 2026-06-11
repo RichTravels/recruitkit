@@ -24,7 +24,7 @@ function parseOutreachResponse(raw: string) {
   const coldEmailBody = (bodyMatch?.[1] ?? "").trim();
 
   if (!linkedinDm || !coldEmailSubject || !coldEmailBody) {
-    throw new Error("Failed to parse outreach response from OpenAI");
+    return null;
   }
 
   return { linkedinDm, coldEmailSubject, coldEmailBody };
@@ -41,7 +41,10 @@ export async function generateOutreach(
     const u = await db.user.findUnique({ where: { clerkId: activeId } });
     if (!u) return { error: "User not found" };
     if (u.subscriptionStatus !== "active" && u.outreachQuota <= 0) {
-      return { error: "Quota exceeded" };
+      return {
+        error:
+          "You've used all 3 free outreach generations. Upgrade to continue.",
+      };
     }
 
     const roleTitle = getStringField(formData, "roleTitle");
@@ -60,7 +63,11 @@ export async function generateOutreach(
     );
 
     const raw = chat.choices[0].message.content || "";
-    const { linkedinDm, coldEmailSubject, coldEmailBody } = parseOutreachResponse(raw);
+    const parsed = parseOutreachResponse(raw);
+    if (!parsed) {
+      return { error: "Couldn't parse the outreach response. Please try again." };
+    }
+    const { linkedinDm, coldEmailSubject, coldEmailBody } = parsed;
 
     await db.outreachMessage.create({
       data: {

@@ -10,18 +10,9 @@ export const db = globalForPrisma.prisma ?? new PrismaClient();
 globalForPrisma.prisma = db;
 
 export async function ensureUser(clerkId: string, email: string) {
-  // If this line has a red error, npx prisma generate will fix it
-  const user = await db.user.findUnique({
+  await db.user.upsert({
     where: { clerkId },
+    create: { clerkId, email, jdQuota: 3 },
+    update: {},
   });
-
-  if (!user) {
-    await db.user.create({
-      data: {
-        clerkId,
-        email,
-        jdQuota: 3,
-      },
-    });
-  }
 }

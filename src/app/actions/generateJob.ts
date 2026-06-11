@@ -50,7 +50,10 @@ export async function generateJob(
     const u = await db.user.findUnique({ where: { clerkId: activeId } });
     if (!u) return { error: "User not found" };
     if (u.subscriptionStatus !== "active" && u.jdQuota <= 0) {
-      return { error: "Quota exceeded" };
+      return {
+        error:
+          "You've used all 3 free job description generations. Upgrade to continue.",
+      };
     }
 
     const { title, tone, location, employment, must, nice } = parseJobForm(formData);

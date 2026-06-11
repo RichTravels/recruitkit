@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { generateJob } from "@/app/actions/generateJob";
 import type { GenerateJobState } from "@/app/actions/generateJob.types";
@@ -23,10 +24,23 @@ function SubmitButton() {
 
 export default function GenerateForm() {
   const [state, formAction] = useFormState(generateJob, initialState);
+  const [displayState, setDisplayState] = useState<GenerateJobState>(initialState);
+  const prevStateRef = useRef<GenerateJobState>(initialState);
+
+  useEffect(() => {
+    if (state !== prevStateRef.current) {
+      prevStateRef.current = state;
+      setDisplayState(state);
+    }
+  }, [state]);
 
   return (
     <div className="space-y-8">
-      <form action={formAction} className="mx-auto max-w-2xl space-y-4">
+      <form
+        action={formAction}
+        onSubmit={() => setDisplayState(initialState)}
+        className="mx-auto max-w-2xl space-y-4"
+      >
         <div className="flex flex-col gap-2">
           <label htmlFor="title" className="font-medium">
             Role Title
@@ -117,19 +131,19 @@ export default function GenerateForm() {
         <SubmitButton />
       </form>
 
-      {state.error ? (
+      {displayState.error ? (
         <p className="mx-auto max-w-2xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {state.error}
+          {displayState.error}
         </p>
       ) : null}
 
-      {state.content && state.title ? (
+      {displayState.content && displayState.title ? (
         <section className="mx-auto max-w-3xl">
           <h2 className="mb-4 text-lg font-semibold text-slate-800">Generated Job Description</h2>
           <JobDescriptionView
-            title={state.title}
-            content={state.content}
-            tone={state.tone}
+            title={displayState.title}
+            content={displayState.content}
+            tone={displayState.tone}
           />
         </section>
       ) : null}
