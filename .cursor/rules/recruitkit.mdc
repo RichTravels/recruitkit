@@ -1,0 +1,57 @@
+---
+description: RecruitKit stack, conventions, and patterns
+alwaysApply: true
+---
+
+# RecruitKit — Project Brain
+
+## Stack
+- Next.js 14 App Router + TypeScript (`src/app/`)
+- PostgreSQL on Supabase via **Prisma** (`@/lib/db`) — not the Supabase JS client
+- Clerk auth: `auth()` / `clerkClient()` in server code; Clerk UI components on auth pages
+- OpenAI SDK (`gpt-4o`) for generation — plain text responses, not JSON mode
+- Tailwind CSS; deploy target is Vercel
+
+## Database (CRITICAL)
+- `DATABASE_URL`: Supavisor **transaction** pooler, port **6543**, with `?pgbouncer=true&connection_limit=1`
+- `DIRECT_URL`: Supavisor **session** pooler, port **5432** on `pooler.supabase.com`
+- **Never** use `db.*.supabase.co` on IPv4-only networks
+- **Never** run `prisma db push` on the shared Supabase project — it will try to drop unrelated tables. Use targeted SQL or `prisma migrate` instead.
+- Supabase project ref: `onuzmeyzwrusrzjhqsys`
+
+## Data model
+- `User.clerkId` stores the Clerk user ID; `User.id` is the internal cuid primary key
+- `Job.userId` references `User.id` (not `clerkId`)
+- Free tier: `jdQuota` defaults to 3; check quota before generation
+
+## Auth pattern
+- Server actions / server components: `const { userId } = await auth()` — return an error if null
+- Resolve app user: `db.user.findUnique({ where: { clerkId: userId } })`
+- On first visit: `ensureUser(clerkId, email)` in `@/lib/db` creates the User row
+- Middleware in `src/middleware.ts` protects non-public routes via `clerkMiddleware`
+
+## Server actions (preferred over API routes)
+- Mutations live in `src/app/actions/` with `"use server"` at the top
+- Colocate types as `*.types.ts` next to the action (e.g. `generateJob.types.ts`)
+- Return structured state objects `{ error?: string; content?: string; ... }` for `useFormState`
+- Call `revalidatePath("/")` after writes
+- Wrap DB + OpenAI calls in try/catch
+
+## File structure
+- Pages: `src/app/**/page.tsx`
+- Server actions: `src/app/actions/`
+- Components: `src/components/`
+- Lib/helpers: `src/lib/` (`db.ts`, `openai.ts`, `utils.ts`)
+- Schema: `prisma/schema.prisma`
+
+## UI conventions
+- Match the existing JD generator style (Tailwind, blue primary, clean forms)
+- Loading states on async form submissions (`useFormStatus`)
+- Empty states on library/list views
+- Copy-to-clipboard: `useState` + 2s reset timeout
+
+## Product context
+- Micro-SaaS for recruiters/staffing agencies ($49/mo planned)
+- **Built:** JD generator + job library
+- **Next:** Outreach generator, interview question generator
+- **Later:** Stripe billing and usage counters on every generation feature

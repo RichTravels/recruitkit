@@ -3,7 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { openai, STAGE_1_5_PROMPT } from "@/lib/openai";
+import { createGpt4oCompletion, STAGE_1_5_PROMPT } from "@/lib/openai";
 import { EEOC_FOOTER } from "@/lib/utils";
 import type { GenerateJobState } from "./generateJob.types";
 
@@ -58,13 +58,9 @@ export async function generateJob(
     if (!title) return { error: "Role title is required" };
     if (!tone) return { error: "Brand tone is required" };
 
-    const chat = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{
-        role: "user",
-        content: STAGE_1_5_PROMPT(title, location, employment, must, nice, tone),
-      }],
-    });
+    const chat = await createGpt4oCompletion(
+      STAGE_1_5_PROMPT(title, location, employment, must, nice, tone)
+    );
 
     const content = (chat.choices[0].message.content || "") + EEOC_FOOTER;
 

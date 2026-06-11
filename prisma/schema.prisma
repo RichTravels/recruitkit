@@ -14,8 +14,10 @@ model User {
   email            String   @unique
   stripeCustomerId String?  @unique
   subscriptionStatus String @default("inactive")
-  jdQuota          Int      @default(3) 
+  jdQuota          Int      @default(3)
+  outreachQuota    Int      @default(3)
   jobs             Job[]
+  outreachMessages OutreachMessage[]
 }
 
 model Job {
@@ -26,6 +28,22 @@ model Job {
   content     String   
   tone        String
   createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+model OutreachMessage {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  roleTitle        String
+  companyName      String
+  keySkills        String
+  tone             String
+  linkedinDm       String
+  coldEmailSubject String
+  coldEmailBody    String
+  createdAt        DateTime @default(now())
 
   @@index([userId])
 }
