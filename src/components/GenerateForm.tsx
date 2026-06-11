@@ -5,6 +5,7 @@ import { useFormState, useFormStatus } from "react-dom";
 import { generateJob } from "@/app/actions/generateJob";
 import type { GenerateJobState } from "@/app/actions/generateJob.types";
 import JobDescriptionView from "@/components/JobDescriptionView";
+import { GenerationError } from "@/components/UpgradePrompt";
 
 const initialState: GenerateJobState = {};
 
@@ -139,11 +140,7 @@ export default function GenerateForm() {
         <SubmitButton />
       </form>
 
-      {displayState.error ? (
-        <p className="mx-auto max-w-2xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {displayState.error}
-        </p>
-      ) : null}
+      {displayState.error ? <GenerationError error={displayState.error} /> : null}
 
       {displayState.content && displayState.title ? (
         <section className="mx-auto max-w-3xl">

@@ -49,7 +49,7 @@ export async function generateJob(
 
     const u = await db.user.findUnique({ where: { clerkId: activeId } });
     if (!u) return { error: "User not found" };
-    if (u.subscriptionStatus !== "active" && u.jdQuota <= 0) {
+    if (!u.isPro && u.jdQuota <= 0) {
       return {
         error:
           "You've used all 3 free job description generations. Upgrade to continue.",
@@ -71,14 +71,14 @@ export async function generateJob(
       data: { userId: u.id, title, content, tone },
     });
 
-    if (u.subscriptionStatus !== "active") {
+    if (!u.isPro) {
       await db.user.update({
         where: { clerkId: activeId },
         data: { jdQuota: { decrement: 1 } },
       });
     }
 
-    revalidatePath("/");
+    revalidatePath("/dashboard");
     return { content, title, tone };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Generation failed";

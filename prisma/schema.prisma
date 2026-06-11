@@ -9,17 +9,19 @@ datasource db {
 }
 
 model User {
-  id               String   @id @default(cuid())
-  clerkId          String   @unique
-  email            String   @unique
-  stripeCustomerId String?  @unique
-  subscriptionStatus String @default("inactive")
-  jdQuota          Int      @default(3)
-  outreachQuota    Int      @default(3)
-  interviewQuota   Int      @default(3)
-  jobs             Job[]
-  outreachMessages OutreachMessage[]
-  interviewQuestions InterviewQuestion[]
+  id                   String   @id @default(cuid())
+  clerkId              String   @unique
+  email                String   @unique
+  isPro                Boolean  @default(false)
+  stripeCustomerId     String?  @unique
+  stripeSubscriptionId String?
+  subscriptionStatus   String   @default("inactive")
+  jdQuota              Int      @default(3)
+  outreachQuota        Int      @default(3)
+  interviewQuota       Int      @default(3)
+  jobs                 Job[]
+  outreachMessages     OutreachMessage[]
+  interviewQuestions   InterviewQuestion[]
 }
 
 model Job {

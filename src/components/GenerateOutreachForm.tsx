@@ -6,6 +6,7 @@ import { useFormState, useFormStatus } from "react-dom";
 import { generateOutreach } from "@/app/actions/generateOutreach";
 import type { GenerateOutreachState } from "@/app/actions/generateOutreach.types";
 import CopyButton from "@/components/CopyButton";
+import { GenerationError } from "@/components/UpgradePrompt";
 
 const initialState: GenerateOutreachState = {};
 
@@ -130,11 +131,7 @@ export default function GenerateOutreachForm() {
         <SubmitButton />
       </form>
 
-      {displayState.error ? (
-        <p className="mx-auto max-w-2xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {displayState.error}
-        </p>
-      ) : null}
+      {displayState.error ? <GenerationError error={displayState.error} /> : null}
 
       {displayState.linkedinDm && displayState.coldEmailSubject && displayState.coldEmailBody ? (
         <section className="mx-auto max-w-3xl space-y-4">

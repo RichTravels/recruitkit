@@ -59,7 +59,7 @@ export async function generateInterview(
 
     const u = await db.user.findUnique({ where: { clerkId: activeId } });
     if (!u) return { error: "User not found" };
-    if (u.subscriptionStatus !== "active" && u.interviewQuota <= 0) {
+    if (!u.isPro && u.interviewQuota <= 0) {
       return {
         error:
           "You've used all 3 free interview question generations. Upgrade to continue.",
@@ -104,7 +104,7 @@ export async function generateInterview(
       },
     });
 
-    if (u.subscriptionStatus !== "active") {
+    if (!u.isPro) {
       await db.user.update({
         where: { clerkId: activeId },
         data: { interviewQuota: { decrement: 1 } },

@@ -6,6 +6,7 @@ import { useFormState, useFormStatus } from "react-dom";
 import { generateInterview } from "@/app/actions/generateInterview";
 import type { GenerateInterviewState } from "@/app/actions/generateInterview.types";
 import CopyButton from "@/components/CopyButton";
+import { GenerationError } from "@/components/UpgradePrompt";
 
 const initialState: GenerateInterviewState = {};
 
@@ -136,11 +137,7 @@ export default function GenerateInterviewForm() {
         <SubmitButton />
       </form>
 
-      {displayState.error ? (
-        <p className="mx-auto max-w-2xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {displayState.error}
-        </p>
-      ) : null}
+      {displayState.error ? <GenerationError error={displayState.error} /> : null}
 
       {displayState.questions && displayState.roleTitle ? (
         <section className="mx-auto max-w-3xl space-y-4">

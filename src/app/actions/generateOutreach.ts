@@ -40,7 +40,7 @@ export async function generateOutreach(
 
     const u = await db.user.findUnique({ where: { clerkId: activeId } });
     if (!u) return { error: "User not found" };
-    if (u.subscriptionStatus !== "active" && u.outreachQuota <= 0) {
+    if (!u.isPro && u.outreachQuota <= 0) {
       return {
         error:
           "You've used all 3 free outreach generations. Upgrade to continue.",
@@ -82,7 +82,7 @@ export async function generateOutreach(
       },
     });
 
-    if (u.subscriptionStatus !== "active") {
+    if (!u.isPro) {
       await db.user.update({
         where: { clerkId: activeId },
         data: { outreachQuota: { decrement: 1 } },
