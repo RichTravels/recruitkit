@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import GenerateForm from "@/components/GenerateForm";
 import JobLibrary from "@/components/JobLibrary";

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import InterviewLibrary from "@/components/InterviewLibrary";

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import OutreachLibrary from "@/components/OutreachLibrary";
