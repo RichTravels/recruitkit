@@ -14,7 +14,7 @@ export default function Header() {
 
         <SignedIn>
           <nav className="hidden items-center gap-4 text-sm font-medium text-slate-600 sm:flex">
-            <Link href="/" className="transition hover:text-slate-900">
+            <Link href="/dashboard" className="transition hover:text-slate-900">
               JD Generator
             </Link>
             <Link href="/outreach/generate" className="transition hover:text-slate-900">
