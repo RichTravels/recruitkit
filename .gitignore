@@ -6,3 +6,9 @@ node_modules
 # env files
 .env*
 !.env.example
+
+# cursor (ignore local MCP config; keep shared rules)
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
+
