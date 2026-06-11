@@ -43,11 +43,19 @@ export default function GenerateInterviewForm() {
     }
   }, [state]);
 
+  async function handleAction(formData: FormData) {
+    setDisplayState(initialState);
+    try {
+      await formAction(formData);
+    } catch {
+      window.location.reload();
+    }
+  }
+
   return (
     <div className="space-y-8">
       <form
-        action={formAction}
-        onSubmit={() => setDisplayState(initialState)}
+        action={handleAction}
         className="mx-auto max-w-2xl space-y-4"
       >
         <div className="flex flex-col gap-2">

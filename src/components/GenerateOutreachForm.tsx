@@ -35,11 +35,21 @@ export default function GenerateOutreachForm() {
     }
   }, [state]);
 
+  async function handleAction(formData: FormData) {
+    setDisplayState(initialState);
+    try {
+      await formAction(formData);
+    } catch {
+      // Server action ID is stale — a new deployment happened while this page was
+      // open. Reload to get fresh action IDs from the latest build.
+      window.location.reload();
+    }
+  }
+
   return (
     <div className="space-y-8">
       <form
-        action={formAction}
-        onSubmit={() => setDisplayState(initialState)}
+        action={handleAction}
         className="mx-auto max-w-2xl space-y-4"
       >
         <div className="flex flex-col gap-2">
