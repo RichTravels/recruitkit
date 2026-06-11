@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { startCheckout } from "@/lib/billing-client";
 
 export default function UpgradePrompt() {
   const [loading, setLoading] = useState(false);
@@ -11,14 +12,7 @@ export default function UpgradePrompt() {
     setError(null);
 
     try {
-      const response = await fetch("/api/stripe/checkout", { method: "POST" });
-      const data = (await response.json()) as { url?: string; error?: string };
-
-      if (!response.ok || !data.url) {
-        throw new Error(data.error ?? "Unable to start checkout");
-      }
-
-      window.location.href = data.url;
+      await startCheckout();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to start checkout");
       setLoading(false);

@@ -1,6 +1,12 @@
 import { UserButton, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import Link from "next/link";
 
+const clerkAppearance = {
+  layout: {
+    unsafe_disableDevelopmentModeWarnings: true,
+  },
+};
+
 export default function Header() {
   return (
     <header className="flex items-center justify-between border-b px-6 py-4">
@@ -29,6 +35,9 @@ export default function Header() {
             <Link href="/interview/library" className="transition hover:text-slate-900">
               Interview Library
             </Link>
+            <Link href="/account" className="transition hover:text-slate-900">
+              Account
+            </Link>
           </nav>
         </SignedIn>
       </div>
@@ -43,7 +52,12 @@ export default function Header() {
         </SignedOut>
 
         <SignedIn>
-          <UserButton afterSignOutUrl="/" />
+          <UserButton
+            afterSignOutUrl="/"
+            userProfileMode="navigation"
+            userProfileUrl="/account"
+            appearance={clerkAppearance}
+          />
         </SignedIn>
       </div>
     </header>
