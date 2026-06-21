@@ -3,7 +3,9 @@
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
+import { getClientErrorMessage, logServerError } from "@/lib/errors";
 import { createGpt4oCompletion } from "@/lib/openai";
+import { FIELD_LIMITS, validateMaxLength } from "@/lib/validation";
 import type { GenerateInterviewState, InterviewSeniority } from "./generateInterview.types";
 
 const VALID_SENIORITIES: InterviewSeniority[] = ["junior", "mid", "senior"];
@@ -82,6 +84,9 @@ export async function generateInterview(
     if (!VALID_COUNTS.includes(questionCount)) return { error: "Invalid question count" };
     if (categories.length === 0) return { error: "Select at least one category" };
 
+    const titleError = validateMaxLength(roleTitle, FIELD_LIMITS.title, "Role title");
+    if (titleError) return { error: titleError };
+
     const chat = await createGpt4oCompletion(
       interviewPrompt(roleTitle, seniority, questionCount, categories)
     );
@@ -122,7 +127,7 @@ export async function generateInterview(
       questions,
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Generation failed";
-    return { error: message };
+    logServerError("generateInterview", error);
+    return { error: getClientErrorMessage(error, "Generation failed") };
   }
 }

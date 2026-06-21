@@ -1,13 +1,9 @@
 import OpenAI from "openai";
 import { getRequiredEnv } from "@/lib/env";
+import { logServerError } from "@/lib/errors";
 
 export async function createGpt4oCompletion(content: string) {
   const apiKey = getRequiredEnv("OPENAI_API_KEY");
-
-  if (process.env.NODE_ENV === "development") {
-    console.log("[openai] using key suffix:", apiKey.slice(-6));
-  }
-
   const client = new OpenAI({ apiKey });
 
   try {
@@ -20,10 +16,8 @@ export async function createGpt4oCompletion(content: string) {
     });
   } catch (error) {
     if (error instanceof OpenAI.APIError && error.status === 401) {
-      throw new Error(
-        `OpenAI rejected the API key (suffix: ...${apiKey.slice(-4)}). ` +
-          "Update OPENAI_API_KEY where this app runs and restart/redeploy."
-      );
+      logServerError("openai", error);
+      throw new Error("OpenAI authentication failed. Check server configuration.");
     }
     throw error;
   }

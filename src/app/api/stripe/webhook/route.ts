@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { db } from "@/lib/db";
+import { logServerError } from "@/lib/errors";
 import { getRequiredEnv } from "@/lib/env";
 import { getStripe } from "@/lib/stripe";
 
@@ -23,8 +24,8 @@ export async function POST(request: Request) {
       getRequiredEnv("STRIPE_WEBHOOK_SECRET")
     );
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Invalid signature";
-    return NextResponse.json({ error: message }, { status: 400 });
+    logServerError("stripe/webhook/signature", error);
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
   try {
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Webhook handler failed";
-    return NextResponse.json({ error: message }, { status: 500 });
+    logServerError("stripe/webhook", error);
+    return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 });
   }
 }

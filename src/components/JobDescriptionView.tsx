@@ -1,3 +1,5 @@
+import MarkdownContent from "@/components/MarkdownContent";
+
 type JobDescriptionViewProps = {
   title: string;
   content: string;
@@ -20,9 +22,7 @@ export default function JobDescriptionView({
           {createdAt ? <span>{createdAt}</span> : null}
         </div>
       </header>
-      <div className="whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
-        {content}
-      </div>
+      <MarkdownContent content={content} />
     </article>
   );
 }

@@ -6,6 +6,7 @@ import { useFormState, useFormStatus } from "react-dom";
 import { generateOutreach } from "@/app/actions/generateOutreach";
 import type { GenerateOutreachState } from "@/app/actions/generateOutreach.types";
 import CopyButton from "@/components/CopyButton";
+import MarkdownContent from "@/components/MarkdownContent";
 import { GenerationError } from "@/components/UpgradePrompt";
 
 const initialState: GenerateOutreachState = {};
@@ -159,9 +160,7 @@ export default function GenerateOutreachForm() {
                   <h4 className="text-sm font-semibold text-slate-800">LinkedIn DM</h4>
                   <CopyButton text={displayState.linkedinDm} copyKey="linkedin" label="Copy DM" />
                 </div>
-                <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
-                  {displayState.linkedinDm}
-                </p>
+                <MarkdownContent content={displayState.linkedinDm} />
                 <p className="mt-1 text-xs text-slate-400">{displayState.linkedinDm.length}/300 chars</p>
               </div>
 
@@ -175,9 +174,7 @@ export default function GenerateOutreachForm() {
                   />
                 </div>
                 <p className="text-sm font-medium text-slate-800">{displayState.coldEmailSubject}</p>
-                <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
-                  {displayState.coldEmailBody}
-                </p>
+                <MarkdownContent content={displayState.coldEmailBody} />
               </div>
             </div>
           </article>

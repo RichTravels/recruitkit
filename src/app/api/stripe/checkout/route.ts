@@ -1,6 +1,7 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getClientErrorMessage, logServerError } from "@/lib/errors";
 import { getEnv, getRequiredEnv } from "@/lib/env";
 import { getStripe } from "@/lib/stripe";
 
@@ -38,7 +39,6 @@ export async function POST() {
 
     const baseUrl = getEnv("NEXT_PUBLIC_URL") ?? "http://localhost:3000";
     const priceId = getRequiredEnv("STRIPE_PRICE_ID");
-    console.log("[stripe/checkout] using price:", priceId);
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -59,8 +59,10 @@ export async function POST() {
 
     return NextResponse.json({ url: session.url });
   } catch (error) {
-    console.error("[stripe/checkout] error:", error);
-    const message = error instanceof Error ? error.message : "Checkout failed";
-    return NextResponse.json({ error: message }, { status: 500 });
+    logServerError("stripe/checkout", error);
+    return NextResponse.json(
+      { error: getClientErrorMessage(error, "Checkout failed") },
+      { status: 500 }
+    );
   }
 }

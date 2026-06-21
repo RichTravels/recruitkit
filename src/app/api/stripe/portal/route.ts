@@ -1,6 +1,7 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getClientErrorMessage, logServerError } from "@/lib/errors";
 import { getEnv } from "@/lib/env";
 import { getStripe } from "@/lib/stripe";
 
@@ -48,8 +49,10 @@ export async function POST() {
 
     return NextResponse.json({ url: session.url });
   } catch (error) {
-    console.error("[stripe/portal] error:", error);
-    const message = error instanceof Error ? error.message : "Portal failed";
-    return NextResponse.json({ error: message }, { status: 500 });
+    logServerError("stripe/portal", error);
+    return NextResponse.json(
+      { error: getClientErrorMessage(error, "Portal failed") },
+      { status: 500 }
+    );
   }
 }

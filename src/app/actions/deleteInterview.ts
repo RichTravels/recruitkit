@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
+import { getClientErrorMessage, logServerError } from "@/lib/errors";
 import type { DeleteInterviewState } from "./generateInterview.types";
 
 export async function deleteInterview(
@@ -24,13 +25,15 @@ export async function deleteInterview(
     });
     if (!record) return { error: "Question bank not found" };
 
-    await db.interviewQuestion.delete({ where: { id } });
+    await db.interviewQuestion.deleteMany({
+      where: { id, userId: u.id },
+    });
 
     revalidatePath("/interview/library");
 
     return { success: true };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Delete failed";
-    return { error: message };
+    logServerError("deleteInterview", error);
+    return { error: getClientErrorMessage(error, "Delete failed") };
   }
 }

@@ -6,6 +6,7 @@ import { useFormState, useFormStatus } from "react-dom";
 import { generateInterview } from "@/app/actions/generateInterview";
 import type { GenerateInterviewState } from "@/app/actions/generateInterview.types";
 import CopyButton from "@/components/CopyButton";
+import MarkdownContent from "@/components/MarkdownContent";
 import { GenerationError } from "@/components/UpgradePrompt";
 
 const initialState: GenerateInterviewState = {};
@@ -176,9 +177,7 @@ export default function GenerateInterviewForm() {
               />
             </div>
 
-            <div className="whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
-              {displayState.questions}
-            </div>
+            <MarkdownContent content={displayState.questions} />
           </article>
         </section>
       ) : null}

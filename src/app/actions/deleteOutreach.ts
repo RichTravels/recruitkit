@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
+import { getClientErrorMessage, logServerError } from "@/lib/errors";
 import type { DeleteOutreachState } from "./generateOutreach.types";
 
 export async function deleteOutreach(
@@ -24,14 +25,15 @@ export async function deleteOutreach(
     });
     if (!message) return { error: "Message not found" };
 
-    await db.outreachMessage.delete({ where: { id } });
+    await db.outreachMessage.deleteMany({
+      where: { id, userId: u.id },
+    });
 
     revalidatePath("/outreach/library");
 
     return { success: true };
   } catch (error) {
-    console.error("[deleteOutreach]", error);
-    const message = error instanceof Error ? error.message : "Delete failed";
-    return { error: message };
+    logServerError("deleteOutreach", error);
+    return { error: getClientErrorMessage(error, "Delete failed") };
   }
 }

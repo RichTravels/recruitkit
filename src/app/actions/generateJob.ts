@@ -3,7 +3,16 @@
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
+import { getClientErrorMessage, logServerError } from "@/lib/errors";
 import { createGpt4oCompletion, STAGE_1_5_PROMPT } from "@/lib/openai";
+import {
+  EMPLOYMENT_TYPES,
+  FIELD_LIMITS,
+  JOB_TONES,
+  type JobTone,
+  validateMaxLength,
+  validateStringList,
+} from "@/lib/validation";
 import { EEOC_FOOTER } from "@/lib/utils";
 import type { GenerateJobState } from "./generateJob.types";
 
@@ -60,6 +69,21 @@ export async function generateJob(
 
     if (!title) return { error: "Role title is required" };
     if (!tone) return { error: "Brand tone is required" };
+    if (!JOB_TONES.includes(tone as JobTone)) return { error: "Invalid tone selected" };
+    if (!EMPLOYMENT_TYPES.includes(employment as (typeof EMPLOYMENT_TYPES)[number])) {
+      return { error: "Invalid employment type selected" };
+    }
+
+    const validationErrors = [
+      validateMaxLength(title, FIELD_LIMITS.title, "Role title"),
+      validateMaxLength(location, FIELD_LIMITS.location, "Location"),
+      validateStringList(must, "Must-haves"),
+      validateStringList(nice, "Nice-to-haves"),
+    ].filter(Boolean);
+
+    if (validationErrors.length > 0) {
+      return { error: validationErrors[0]! };
+    }
 
     const chat = await createGpt4oCompletion(
       STAGE_1_5_PROMPT(title, location, employment, must, nice, tone)
@@ -81,7 +105,7 @@ export async function generateJob(
     revalidatePath("/dashboard");
     return { content, title, tone };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Generation failed";
-    return { error: message };
+    logServerError("generateJob", error);
+    return { error: getClientErrorMessage(error, "Generation failed") };
   }
 }
